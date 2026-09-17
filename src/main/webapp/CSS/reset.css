@@ -1,0 +1,25 @@
+@charset "UTF-8";
+.reset-box {
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 400px;
+  margin: auto;
+  margin-top: 100px;
+  text-align: center;
+}
+
+.reset-box h2 {
+  margin-bottom: 20px;
+}
+
+.reset-box input[type="password"],
+.reset-box input[type="submit"] {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}

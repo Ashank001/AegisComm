@@ -1,60 +1,86 @@
-<%@ page session="true" %>
-<%
-    String role = (String) session.getAttribute("role");
-    if (role == null || !role.equals("admin")) {
-        response.sendRedirect("login.jsp");
-        return;
-    }
-%>
-<title> AddUser</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" href="images/AegisComm.jpg">
-<link rel="stylesheet" href=CSS/adduser.css>
-<% 
-    String msg = request.getParameter("msg"); 
-%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Add New User</title>
+    <link rel="stylesheet" href="CSS/adduser.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Segoe+UI&display=swap');
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Add New User</h2>
 
-<% if (msg != null) { %>
-    <div class="alert alert-success">
-        <%= msg %>
+        <!-- Success/Error Message -->
+        <%
+		    String success = request.getParameter("success");
+		    String error = request.getParameter("error");
+		    if (success != null) {
+		%>
+		    <div class="alert success"><%= success %></div>
+		<%
+		    } else if (error != null) {
+		%>
+		    <div class="alert error"><%= error %></div>
+		<%
+		    }
+		%>
+		        
+
+        <form action="AddUserServlet" method="post" enctype="multipart/form-data">
+            
+            <!-- Full Name -->
+            <label for="name">Full Name</label>
+            <input type="text" id="name" name="name" required>
+
+            <!-- Email & Role -->
+            <label>Email Address and Role</label>
+            <div class="input-row">
+                <input type="email" name="email" placeholder="Email" required>
+                <select name="role" required>
+                    <option value="">-- Select Role --</option>
+                    <option value="TopOrder">Top Order</option>
+                    <option value="Secondary">Secondary</option>
+                    <option value="Soldier">Soldier</option>
+                </select>
+            </div>
+
+            <!-- Profile Picture -->
+            <label for="profilePic">Upload Profile Image (optional)</label>
+			<input type="file" id="profilePic" name="profileImg" accept="image/*" onchange="previewImage(event)">
+
+            <!-- Preview -->
+            <div class="preview-wrapper">
+                <img id="preview" src="#" alt="Preview" style="display:none; max-width:100px; border-radius:8px; margin-top:10px;" />
+            </div>
+
+            <!-- Checkbox -->
+            <div class="checkbox-group">
+                <input type="checkbox" id="sendMail" name="sendMail" checked>
+                <label for="sendMail">Generate random password and email to user</label>
+            </div>
+
+            <!-- Submit + Back -->
+            <input type="submit" value="Add User">
+            <a href="dashboard.jsp" class="back-button">← Back to Dashboard</a>
+        </form>
     </div>
-<% } %>
-<div class="container">
-	<div class="logo-header">
-    	<img src="images/AegisComm.jpg" alt="Secure Gateway Logo">
-	</div>
-	<h2>Add New User</h2>
-	 <%
-	 	String error = request.getParameter("error");
-        if (error != null) {
-	 %>
-	<div style="color: red; text-align: center; margin-bottom: 10px;">
-		<%= error %>
-	</div>
-	<%}%>
-	<form action="AddUserServlet" method="post" class="form-horizontal">
-	    <div class="form-group">
-	        <label for="username" class="col-sm-2 control-label">Username:</label>
-	        <div class="col-sm-10">
-	            <input type="text" name="username" id="username" class="form-control" required>
-	        </div>
-	    </div>
-	    <div class="form-group">
-	        <label for="role" class="col-sm-2 control-label"> Select Role:</label>
-	        <div class="col-sm-10">
-	            <select name="role" id="role" class="form-control" required>
-	                <option value="user">User</option>
-	                <option value="admin">Admin</option>
-	            </select>
-	        </div>
-	    </div>
-		<h6> * Default password for new users : 123</h6>
-	    <div class="form-group">
-	        <div class="col-sm-offset-2 col-sm-10">
-	            <input type="submit" value="Add User" class="btn btn-primary">
-	        </div>
-	    </div>
-	</form>
-	<a href="dashboard.jsp" class="button" >Back to Dashboard</a>
-	
-</div>
+
+    <script>
+        function previewImage(event) {
+            const input = event.target;
+            const preview = document.getElementById("preview");
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
+</body>
+</html>

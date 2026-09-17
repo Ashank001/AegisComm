@@ -1,0 +1,130 @@
+@charset "UTF-8";
+
+/* General page and layout styles */
+body {
+    background-color: #eef1f5;
+    font-family: 'Segoe UI', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    margin: 0;
+    min-height: 100vh;
+}
+
+.container {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    width: 100%;
+    max-width: 1100px; /* Wide container for the table view */
+    box-sizing: border-box;
+    overflow-x: auto;
+}
+
+.container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 26px;
+    font-weight: 600;
+    color: #333;
+}
+
+/* --- Audit Status Bar (CRITICAL) --- */
+
+.log-status {
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+#chain-status {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 1.1em;
+    color: white;
+}
+
+/* Status colors for the hash chain integrity check */
+#chain-status.valid {
+    background-color: #28a745; /* Green for secure */
+}
+
+#chain-status.invalid {
+    background-color: #dc3545; /* Red for tampered */
+}
+
+/* --- Audit Table Styles --- */
+
+.audit-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.audit-table th, .audit-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.audit-table th {
+    background-color: #f8f9fa;
+    color: #495057;
+    font-weight: 600;
+}
+
+.audit-table tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Hash Status Column Styling */
+.hash-col {
+    font-size: 0.9em;
+    font-family: monospace;
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Indicator for each row status (used by JavaScript) */
+.status-indicator {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.85em;
+}
+
+.status-ok {
+    background-color: #d4edda; /* Light green */
+    color: #155724; /* Dark green text */
+}
+
+.status-error {
+    background-color: #f8d7da; /* Light red */
+    color: #721c24; /* Dark red text */
+}
+
+.warning-row {
+    background-color: #fff3cd; /* Yellow for visual warning if hashes don't match */
+}
+
+/* Back button consistency */
+.back-button {
+    display: inline-block;
+    padding: 10px 20px;
+    margin-top: 20px;
+    background-color: #6c757d;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 15px;
+    transition: background-color 0.3s;
+}
+
+.back-button:hover {
+    background-color: #5a6268;
+}

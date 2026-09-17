@@ -1,0 +1,143 @@
+@charset "UTF-8";
+
+/* General body and container styles */
+html, body {
+    background-color: #eef1f5;
+    font-family: 'Segoe UI', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.container {
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    width: 100%;
+    /* CORRECTED: Removed the negative sign from max-width */
+    max-width: 650px; 
+    box-sizing: border-box;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: 600;
+    color: #333;
+}
+
+/* User list styling */
+.user-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.user-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background-color: #fcfcfc;
+    transition: transform 0.2s;
+    /* NEW: Ensure items do not wrap */
+    flex-wrap: nowrap;
+    gap: 10px; /* Add a gap for consistent spacing */
+}
+
+.user-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+}
+
+.user-item img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ddd;
+    /* NEW: Prevent image from shrinking */
+    flex-shrink: 0;
+}
+
+.user-info {
+    /* NEW: Use a fixed width to prevent overflow */
+    flex-basis: 75%; 
+    overflow: hidden;
+    text-overflow: ellipsis; /* Add ellipsis for long text */
+    white-space: nowrap; /* Prevent wrapping */
+}
+
+.user-info h3 {
+    margin: 0;
+    font-size: 1.1em;
+    color: #333;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.user-info p {
+    margin: 5px 0 0;
+    font-size: 0.9em;
+    color: #777;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* NEW: Style for the user actions container */
+.user-actions {
+    margin-left: auto; /* Push the action buttons to the right */
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Space between buttons */
+    /* NEW: Prevent the actions container from shrinking */
+    flex-shrink: 0;
+}
+
+/* Delete Button Style */
+.delete-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.3s;
+    /* NEW: Ensure the button doesn't shrink */
+    flex-shrink: 0;
+}
+
+.delete-btn:hover {
+    background-color: #c82333;
+}
+
+/* Back button styling */
+.back-button {
+    display: block;
+    text-align: center;
+    padding: 12px;
+    margin-top: 20px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 1em;
+    transition: background-color 0.3s;
+}
+
+.back-button:hover {
+    background-color: #0056b3;
+}
