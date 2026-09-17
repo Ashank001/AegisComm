@@ -1,75 +1,129 @@
-@charset "UTF-8";
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+body {
+    margin: 0;
+    padding: 0;
+    background: #f3f4f6;
+    font-family: 'Segoe UI', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
 }
 
-body {
-  font-family: 'Segoe UI', sans-serif;
-  background: #f0f2f5;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  padding: 16px;
+.login-box {
+    background: white;
+    padding: 50px 25px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    width: 100%;
+    max-width: 400px;
+    box-sizing: border-box;
 }
+
 .logo-wrapper {
     text-align: center;
 }
 
 .logo {
-    max-width: 150px;
-    height: auto;
-    margin-top:20px;
-}
-.login-box {
-  background: white;
-  padding: 30px 24px;
-  border-radius: 12px;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 400px;
+    width: 90px;
+    height: 80px;
+    border-radius: 50%;
 }
 
-.login-box h2 {
-  text-align: center;
-  margin-bottom: 20px;
-  margin-left: 5px;
-  font-size: 22px;
-  color: #333;
+h2 {
+    margin-top: 9px;
+    font-weight: 600;
+    font-size: 22px;
 }
 
-.login-box input[type="text"],
-.login-box input[type="password"] {
-  width: 100%;
-  padding: 14px;
-  margin-bottom: 16px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 16px;
+/* Add margin-bottom for better spacing */
+input[type="email"] {
+    width: 100%;
+    padding: 13px;
+    font-size: 16px;
+    border-radius: 7px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    margin-bottom: 20px; /* Added spacing */
 }
-.login-box input[type="submit"] {
-  width: 100%;
-  padding: 14px;
-  background-color: #007bff;
-  border: none;
-  color: white;
-  font-size: 16px;
-  font-weight: bold;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-.login-box input[type="submit"]:hover {
-  background-color: #0056b3;
-}
-@media (max-width: 480px) {
-  .login-box {
-    padding: 24px 16px;
-  }
 
-  .login-box h2 {
-    font-size: 20px;
-  }
+.password-wrapper {
+    position: relative;
+    width: 100%; /* Ensure this wrapper takes full available width */
+}
+
+.password-wrapper input[type="password"],
+.password-wrapper input[type="text"] {
+    width: 100%; /* Make input take 100% of its parent (.password-wrapper) */
+    padding: 13px 42px 13px 13px; /* Consistent right padding for eye icon */
+    font-size: 16px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    background-color: #fff;
+    /* transition: all 0.2s ease-in-out; */ /* Optional: for smoother transition if needed */
+}
+
+.toggle-password {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #888;
+    font-size: 18px;
+    height: 20px;
+    width: 20px; /* Fixed width for the icon container */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: auto; /* Ensure it's clickable */
+}
+
+/* Add this for hover effect on the eye icon */
+.toggle-password:hover {
+    color: #555;
+}
+
+
+input[type="submit"] {
+    width: 100%;
+    background: #007bff;
+    border: none;
+    padding: 12px;
+    font-size: 15px;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 20px; /* Adjusted margin-top for better spacing */
+}
+
+input[type="submit"]:hover {
+    background: #0056b3;
+}
+
+.bottom-links {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.left-link {
+    font-size: 13px;
+    color: #007bff;
+    text-decoration: none;
+}
+
+.left-link:hover {
+    text-decoration: underline;
+}
+
+.message,alert success {
+    margin-top: 10px;
+    text-align: center;
+    color : red ;
+}
+
+.error {
+    color: red;
+    font-size: 13px;
 }

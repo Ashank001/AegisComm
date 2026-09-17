@@ -1,0 +1,153 @@
+@charset "UTF-8";
+
+/* General page and container styles */
+body {
+    background-color: #eef1f5;
+    font-family: 'Segoe UI', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    margin: 0;
+    min-height: 100vh;
+}
+
+.container {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    width: 100%;
+    max-width: 1000px; 
+    box-sizing: border-box;
+    overflow-x: auto;
+}
+
+.container h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 26px;
+    font-weight: 600;
+    color: #333;
+}
+
+/* Control buttons area */
+.inventory-controls {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 20px;
+}
+
+.button.add-btn {
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    padding: 10px 15px;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+.button.add-btn:hover {
+    background-color: #0056b3;
+}
+
+/* Table Styles */
+.inventory-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.inventory-table th, .inventory-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.inventory-table th {
+    background-color: #f8f9fa;
+    color: #495057;
+    font-weight: 600;
+}
+
+.inventory-table tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Status Badges */
+.status-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.85em;
+    text-transform: uppercase;
+}
+.threat-level-low {
+    background-color: #d4edda; /* Light green (Low risk) - Matches status-active */
+    color: #155724; 
+}
+.threat-level-medium {
+    background-color: #ffe0b2; /* Light orange/yellow */
+    color: #856404; 
+}
+.threat-level-high {
+    background-color: #f8d7da; /* Light red */
+    color: #721c24; 
+}
+.threat-level-critical {
+    background-color: #dc3545; /* Darker red */
+    color: white;
+}
+.status-active {
+    background-color: #d4edda;
+    color: #155724;
+}
+.status-maintenance {
+    background-color: #fff3cd;
+    color: #856404;
+}
+.status-retired {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* Action Buttons */
+.action-btn.edit-btn {
+    background-color: #ffc107;
+    color: white;
+    text-decoration: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 13px;
+    transition: background-color 0.3s;
+}
+.action-btn.edit-btn:hover {
+    background-color: #e0a800;
+}
+
+.no-data {
+    text-align: center;
+    font-style: italic;
+    color: #6c757d;
+    padding: 20px !important;
+}
+
+.back-button {
+    display: block;
+    width: 200px;
+    text-align: center;
+    padding: 10px 20px;
+    margin: 20px auto 0;
+    background-color: #6c757d;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 15px;
+    transition: background-color 0.3s;
+}
+
+.back-button:hover {
+    background-color: #5a6268;
+}
