@@ -1,0 +1,14 @@
+.metadata/
+.classpath
+.project
+.settings/
+Servers/
+bin/
+build/
+target/
+*.class
+*.war
+
+# Local operating-system files
+.DS_Store
+Thumbs.db
