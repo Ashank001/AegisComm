@@ -3,7 +3,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Secure Gateway - Login</title>
+    <title>AegisComm — Login</title>
     <link rel="icon" href="images/AegisComm.jpg">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="CSS/login.css">  
@@ -13,7 +13,7 @@
     <div class="login-box">
         <div class="logo-wrapper">
             <img src="images/AegisComm.jpg" alt="Secure Gateway Logo" class="logo">
-            <h2>Secure Gateway</h2>
+            <h2>AegisComm</h2>
         </div>
 
         <form action="LoginServlet" method="post">
@@ -32,8 +32,12 @@
             <div class="message">
                 <%
                     String error = request.getParameter("error");
+                    String success = request.getParameter("success");
                     if (error != null) {
                         out.println("<span class='error'>" + error + "</span>");
+                    }
+                    if (success != null) {
+                        out.println("<span style='color:#4caf50;'>" + success + "</span>");
                     }
                 %>
             </div>

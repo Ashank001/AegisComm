@@ -1,9 +1,24 @@
 <%@ page session="true" %>
 <%
-    String username = (String) session.getAttribute("user");
-    if (username == null) {
-        response.sendRedirect("login.jsp");
+    String userEmail = (String) session.getAttribute("userEmail");
+    String role = (String) session.getAttribute("role");
+    if (userEmail == null) {
+        response.sendRedirect("login.jsp?error=Session expired. Please log in again.");
         return;
+    }
+
+    // Dynamic dashboard path for "Back" button
+    String dashboardPath;
+    if (role != null && role.equalsIgnoreCase("Admin")) {
+        dashboardPath = "dashboard.jsp";
+    } else if (role != null && role.equalsIgnoreCase("Intelligence")) {
+        dashboardPath = "dashboard_intel.jsp";
+    } else if (role != null && role.equalsIgnoreCase("TopOrder")) {
+        dashboardPath = "dashboard_top.jsp";
+    } else if (role != null && role.equalsIgnoreCase("Secondary")) {
+        dashboardPath = "dashboard_second.jsp";
+    } else {
+        dashboardPath = "dashboard_soldier.jsp";
     }
 
     String error = request.getParameter("error");
@@ -13,7 +28,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Change Password</title>
+    <title>Change Password — AegisComm</title>
     <link rel="icon" href="images/AegisComm.jpg">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="CSS/change_password.css">
@@ -21,7 +36,7 @@
 <body>
     <div class="container">
 	    <div class="logo-header">
-	    	<img src="images/AegisComm.jpg" alt="Secure Gateway Logo">
+	    	<img src="images/AegisComm.jpg" alt="AegisComm Logo">
 		</div>
         <h2>Change Password</h2>
 
@@ -41,7 +56,7 @@
         </form>
 
         <div class="footer-buttons">
-            <a href="dashboard.jsp" class="back">Back to Dashboard</a>
+            <a href="<%= dashboardPath %>" class="back">Back to Dashboard</a>
             <a href="LogoutServlet" class="logout">Logout</a>
         </div>
     </div>

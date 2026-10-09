@@ -33,6 +33,7 @@
     
     <a class="button" href="InboxServlet">📥 View Inbox</a>
     <a class="button" href="compose.jsp">📤 Send Message</a>
+    <a class="button" href="change_password.jsp">🔒 Change Password</a>
     <a class="button logout" href="LogoutServlet">Logout</a>
 </div>
 </body>

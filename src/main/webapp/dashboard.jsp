@@ -40,6 +40,7 @@
    	<a class="button" href="ViewWeaponsServlet">🔫 Manage Weapons</a>
    	<a class="button" href="ViewBordersServlet">🌍 Manage Zones</a>
     <a class="button" href="AuditLogServlet">📜 View Activity Logs</a>
+    <a class="button" href="change_password.jsp">🔒 Change Password</a>
     <a class="button logout" href="LogoutServlet">Logout</a>
 </div>
 </body>

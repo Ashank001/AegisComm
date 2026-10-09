@@ -56,7 +56,7 @@
 
         <form action="SendMessageServlet" method="post">
             <label for="recipient">Recipient</label>
-            <select id="recipient" name="recipientId" multiple required style="height: 150px;">
+            <select id="recipient" name="recipientIds" multiple required style="height: 150px;">
                 <option value="">-- Select Recipient --</option>
                 <%
                     try {
@@ -92,6 +92,10 @@
                             // All users can send to Admin (for support/reporting)
                             else if (recipientRole.equalsIgnoreCase("Admin")) {
                                 out.println("<option value='" + recipientId + "'>" + recipientName + " (" + recipientRole + " - SUPPORT)</option>");
+                            }
+                            // Soldiers can report to Secondary (upward chain)
+                            else if (role.equalsIgnoreCase("Soldier") && recipientRole.equalsIgnoreCase("Secondary")) {
+                                out.println("<option value='" + recipientId + "'>" + recipientName + " (" + recipientRole + ")</option>");
                             }
                         }
                     } catch (Exception e) {

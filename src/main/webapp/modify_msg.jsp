@@ -3,8 +3,8 @@
 <%@ page session="true" %>
 <%
     String role = (String) session.getAttribute("role");
-    if (!role.equalsIgnoreCase("TopOrder")) {
-        response.sendRedirect("dashboard.jsp?error=Unauthorized access");
+    if (role == null || !role.equalsIgnoreCase("TopOrder")) {
+        response.sendRedirect("login.jsp?error=Unauthorized access");
         return;
     }
 

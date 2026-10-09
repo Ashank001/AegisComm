@@ -17,13 +17,17 @@ public class ChangePasswordServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException {
 
-        HttpSession session = request.getSession();
-        String username = (String) session.getAttribute("user");
+        HttpSession session = request.getSession(false);
+        String userEmail = (session != null) ? (String) session.getAttribute("userEmail") : null;
+        String role = (session != null) ? (String) session.getAttribute("role") : null;
 
-        if (username == null) {
-            response.sendRedirect("login.jsp");
+        if (userEmail == null) {
+            response.sendRedirect("login.jsp?error=Session expired. Please log in again.");
             return;
         }
+
+        // Determine the correct dashboard for redirects
+        String dashboardPath = getDashboardPath(role);
 
         String currentPassword = request.getParameter("currentPassword");
         String newPassword = request.getParameter("newPassword");
@@ -34,10 +38,10 @@ public class ChangePasswordServlet extends HttpServlet {
             return;
         }
 
-        try (Connection con = DBConnection.getConnection()) {
-            String query = "SELECT password FROM users WHERE username = ?";
-            PreparedStatement ps = con.prepareStatement(query);
-            ps.setString(1, username);
+        try (Connection conn = DBConnection.getConnection()) {
+            String query = "SELECT password FROM users WHERE email = ?";
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setString(1, userEmail);
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
@@ -48,22 +52,30 @@ public class ChangePasswordServlet extends HttpServlet {
                     return;
                 }
 
-              
                 String newHashed = BCrypt.hashpw(newPassword, BCrypt.gensalt());
-                PreparedStatement update = con.prepareStatement("UPDATE users SET password = ? WHERE username = ?");
+                PreparedStatement update = conn.prepareStatement("UPDATE users SET password = ? WHERE email = ?");
                 update.setString(1, newHashed);
-                update.setString(2, username);
+                update.setString(2, userEmail);
                 update.executeUpdate();
 
-                AuditLogger.log(username, "Changed password");
-                response.sendRedirect("dashboard.jsp?msg=Password+changed+successfully");
+                AuditLogger.log(userEmail, "Changed password");
+                response.sendRedirect(dashboardPath + "?msg=Password+changed+successfully");
             } else {
-                response.sendRedirect("login.jsp");
+                response.sendRedirect("login.jsp?error=Account not found");
             }
 
         } catch (Exception e) {
             e.printStackTrace();
-            response.getWriter().println("<h3>Database error: " + e.getMessage() + "</h3>");
+            response.sendRedirect("change_password.jsp?error=Server+error.+Please+try+again.");
         }
+    }
+
+    private String getDashboardPath(String role) {
+        if (role == null) return "login.jsp";
+        if (role.equalsIgnoreCase("Admin")) return "dashboard.jsp";
+        if (role.equalsIgnoreCase("Intelligence")) return "dashboard_intel.jsp";
+        if (role.equalsIgnoreCase("TopOrder")) return "dashboard_top.jsp";
+        if (role.equalsIgnoreCase("Secondary")) return "dashboard_second.jsp";
+        return "dashboard_soldier.jsp";
     }
 }
