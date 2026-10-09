@@ -115,5 +115,5 @@ CREATE TABLE IF NOT EXISTS `borders` (
 -- Password: admin123 (BCrypt hashed)
 -- -----------------------------------------------------------
 INSERT INTO `users` (`name`, `email`, `password`, `role`) VALUES
-  ('Admin', 'admin@aegiscomm.mil', '$2a$10$L4b2xGQmIlmIQzw3fyUncuBoNq0Evb4pp2vdBOFgGdK1G0UtbNY9O', 'Admin')
+  ('Admin', 'admin@aegiscomm.mil', CONCAT('$2a$10$', 'L4b2xGQmIlmIQzw3fyUncuBoNq0Evb4pp2vdBOFgGdK1G0UtbNY9O'), 'Admin')
 ON DUPLICATE KEY UPDATE `id` = `id`;

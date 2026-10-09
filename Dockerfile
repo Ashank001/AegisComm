@@ -13,16 +13,12 @@ WORKDIR /build
 COPY src/main/java/ src/main/java/
 COPY src/main/webapp/ src/main/webapp/
 
-# Download dependencies (BCrypt is vendored in source)
-RUN mkdir -p libs \
- && curl -sL -o libs/servlet-api.jar \
-      "https://repo1.maven.org/maven2/javax/servlet/javax.servlet-api/4.0.1/javax.servlet-api-4.0.1.jar" \
- && curl -sL -o libs/mysql-connector.jar \
-      "https://repo1.maven.org/maven2/com/mysql/mysql-connector-j/9.1.0/mysql-connector-j-9.1.0.jar" \
- && curl -sL -o libs/jakarta-mail.jar \
-      "https://repo1.maven.org/maven2/com/sun/mail/jakarta.mail/2.0.1/jakarta.mail-2.0.1.jar" \
- && curl -sL -o libs/jakarta-activation.jar \
-      "https://repo1.maven.org/maven2/com/sun/activation/jakarta.activation/2.0.1/jakarta.activation-2.0.1.jar"
+# Download dependencies natively using ADD (fixes SonarQube curl/HTTPS warnings)
+RUN mkdir -p libs
+ADD https://repo1.maven.org/maven2/javax/servlet/javax.servlet-api/4.0.1/javax.servlet-api-4.0.1.jar libs/servlet-api.jar
+ADD https://repo1.maven.org/maven2/com/mysql/mysql-connector-j/9.1.0/mysql-connector-j-9.1.0.jar libs/mysql-connector.jar
+ADD https://repo1.maven.org/maven2/com/sun/mail/jakarta.mail/2.0.1/jakarta.mail-2.0.1.jar libs/jakarta-mail.jar
+ADD https://repo1.maven.org/maven2/com/sun/activation/jakarta.activation/2.0.1/jakarta.activation-2.0.1.jar libs/jakarta-activation.jar
 
 # Compile all Java sources
 RUN mkdir -p build/classes \
@@ -54,5 +50,10 @@ EXPOSE 8080
 # Health check
 HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
   CMD curl -f http://localhost:8080/ || exit 1
+
+# Fix SonarQube root warning: Run Tomcat as non-root user
+RUN groupadd -r tomcat && useradd -r -g tomcat tomcat \
+ && chown -R tomcat:tomcat /usr/local/tomcat
+USER tomcat
 
 CMD ["catalina.sh", "run"]
