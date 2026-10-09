@@ -1,14 +1,30 @@
+# ============================================================
+# AegisComm — Git Ignore Rules
+# ============================================================
+
+# --- Eclipse IDE ---
 .metadata/
 .classpath
 .project
 .settings/
 Servers/
+
+# --- Build outputs ---
 bin/
 build/
 target/
 *.class
 *.war
 
-# Local operating-system files
+# --- Environment secrets ---
+.env
+
+# --- OS files ---
 .DS_Store
 Thumbs.db
+
+# --- Old/stale artifacts ---
+FETCH_HEAD
+git
+main
+dbAC.sql

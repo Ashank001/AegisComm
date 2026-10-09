@@ -39,7 +39,15 @@ public class ForgotPasswordServlet extends HttpServlet {
             insert.setTimestamp(3, Timestamp.valueOf(expiry));
             insert.executeUpdate();
 
-            String resetLink = "http://localhost:8080/SecureGatewayAppCopy/reset.jsp?token=" + token;
+            // Build reset link dynamically from the current request
+            String baseUrl = request.getScheme() + "://" + request.getServerName();
+            int port = request.getServerPort();
+            if ((request.getScheme().equals("http") && port != 80) ||
+                (request.getScheme().equals("https") && port != 443)) {
+                baseUrl += ":" + port;
+            }
+            baseUrl += request.getContextPath();
+            String resetLink = baseUrl + "/reset.jsp?token=" + token;
             MailSender.send(email, "Password Reset Request", 
                 "Click the link below to reset your password:\n" + resetLink);
 

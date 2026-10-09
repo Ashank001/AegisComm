@@ -1,0 +1,49 @@
+# ============================================================
+# AegisComm — Docker Compose
+# Runs both the app (Tomcat) and MySQL database together.
+# Usage: docker compose up --build
+# ============================================================
+
+services:
+  # --- MySQL Database ---
+  db:
+    image: mysql:8.0
+    container_name: aegiscomm-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-aegiscomm_root_2025}
+      MYSQL_DATABASE: aegiscomm
+      MYSQL_USER: ${DB_USER:-aegiscomm}
+      MYSQL_PASSWORD: ${DB_PASS:-aegiscomm_pass_2025}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  # --- AegisComm Application (Tomcat 9) ---
+  app:
+    build: .
+    container_name: aegiscomm-app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      DB_URL: jdbc:mysql://db:3306/aegiscomm?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      DB_USER: ${DB_USER:-aegiscomm}
+      DB_PASS: ${DB_PASS:-aegiscomm_pass_2025}
+      MASTER_KEY: ${MASTER_KEY:-AegisSecretKey16}
+      MAIL_FROM: ${MAIL_FROM:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+
+volumes:
+  mysql_data:
