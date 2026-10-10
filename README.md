@@ -20,8 +20,9 @@ A Java web application for **role-based encrypted messaging**, built with JSP/Se
 | Backend      | Java Servlets (Java 17)            |
 | Database     | MySQL 8.0 via JDBC                 |
 | Crypto       | `javax.crypto` (AES-128), BCrypt   |
-| Server       | Apache Tomcat 9.0                  |
-| Deployment   | Docker, Docker Compose, AWS EC2    |
+| Server       | Apache Tomcat 9.0 (running as non-root) |
+| Deployment   | Docker, GitHub Actions (CI/CD), AWS EC2 |
+| Security     | SonarQube Static Analysis          |
 
 ## Architecture
 
@@ -52,8 +53,14 @@ cp .env.example .env
 docker compose up --build
 
 # 4. Access the application
-# Open http://localhost:8080 in your browser
+# Open http://localhost in your browser (Port 80)
 ```
+
+## CI/CD Pipeline
+
+This project uses **GitHub Actions** for continuous integration and deployment.
+- **Static Analysis**: Code is analyzed by **SonarCloud (SonarQube)** on every push to enforce security standards (e.g., preventing hardcoded secrets, validating Dockerfile privileges, checking dependency SHAs).
+- **Automated Deployment**: Upon passing the quality gate, GitHub Actions securely SSHs into the AWS EC2 instance, pulls the latest code, and orchestrates a zero-downtime deployment via `docker compose up --build -d`.
 
 ## Environment Variables
 
