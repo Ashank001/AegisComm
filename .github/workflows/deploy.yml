@@ -22,6 +22,10 @@ jobs:
             # Navigate to the project directory
             cd ~/AegisComm
             
+            # Prevent Git HTTPS HTTP/2 hang and buffer exhaustion on Ubuntu/EC2
+            git config http.version HTTP/1.1
+            git config http.postBuffer 524288000
+            
             # Pull the latest changes from the main branch
             git pull origin main
             
