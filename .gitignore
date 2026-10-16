@@ -28,3 +28,7 @@ FETCH_HEAD
 git
 main
 dbAC.sql
+
+# --- Python ---
+__pycache__/
+*.py[cod]
