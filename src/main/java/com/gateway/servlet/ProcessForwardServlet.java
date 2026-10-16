@@ -24,13 +24,13 @@ public class ProcessForwardServlet extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
-        String senderId = (String) session.getAttribute("userId");
-        String role = (String) session.getAttribute("role");
-
-        if (session == null || !role.equalsIgnoreCase("TopOrder")) {
+        if (session == null || !"TopOrder".equalsIgnoreCase((String) session.getAttribute("role"))) {
             response.sendRedirect("login.jsp?error=Unauthorized access");
             return;
         }
+
+        String senderId = (String) session.getAttribute("userId");
+        String senderEmail = (String) session.getAttribute("userEmail");
 
         String originalMessageId = request.getParameter("originalMessageId");
         String recipientId = request.getParameter("recipientId");
@@ -63,7 +63,6 @@ public class ProcessForwardServlet extends HttpServlet {
             int rowsAffected = pstmt.executeUpdate();
 
             if (rowsAffected > 0) {
-            	String senderEmail = (String) session.getAttribute("userEmail");
                 AuditLogger.log(
                     senderEmail, 
                     "Edited and FORWARDED message ID " + originalMessageId + " to Secondary ID " + recipientId

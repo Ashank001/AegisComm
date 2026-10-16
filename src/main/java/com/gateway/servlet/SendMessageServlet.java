@@ -24,19 +24,19 @@ public class SendMessageServlet extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
-        String senderId = (String) session.getAttribute("userId");
-        String senderEmail = (String) session.getAttribute("userEmail"); // For auditing
-
-        if (session == null || senderId == null) {
+        if (session == null || session.getAttribute("userId") == null) {
             response.sendRedirect("login.jsp?error=Unauthorized access");
             return;
         }
 
-        // CRITICAL CHANGE: Use getParameterValues to get an array of IDs
+        String senderId = (String) session.getAttribute("userId");
+        String senderEmail = (String) session.getAttribute("userEmail"); // For auditing
+
+        // Get recipient array
         String[] recipientIds = request.getParameterValues("recipientIds");
         String message = request.getParameter("message");
         
-        if (recipientIds == null || recipientIds.length == 0 || message == null || message.isEmpty()) {
+        if (recipientIds == null || recipientIds.length == 0 || message == null || message.trim().isEmpty()) {
             response.sendRedirect("compose.jsp?error=At least one recipient and a message are required.");
             return;
         }
@@ -44,27 +44,28 @@ public class SendMessageServlet extends HttpServlet {
         int totalMessagesSent = 0;
 
         try (Connection conn = DBConnection.getConnection()) {
-            
             String sql = "INSERT INTO messages (sender_id, receiver_id, encrypted_text, encrypted_aes_key) VALUES (?, ?, ?, ?)";
-            
-            for (String recipientId : recipientIds) {
-                // 1. Generate a unique, random AES key for this message
-                SecretKey uniqueKey = AESUtil.generateKey();
-                
-                // 2. Encrypt the message with the unique key
-                String encryptedMessage = AESUtil.encrypt(message, uniqueKey);
-                
-                // 3. Encrypt the unique key with the Master Key
-                String encryptedAesKey = MasterKeyUtil.encryptKey(uniqueKey);
-                
-                // 4. Execute the database insert for THIS specific recipient
-                PreparedStatement pstmt = conn.prepareStatement(sql);
-                pstmt.setInt(1, Integer.parseInt(senderId));
-                pstmt.setInt(2, Integer.parseInt(recipientId));
-                pstmt.setString(3, encryptedMessage);
-                pstmt.setString(4, encryptedAesKey);
-                
-                totalMessagesSent += pstmt.executeUpdate();
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                for (String recipientId : recipientIds) {
+                    if (recipientId == null || recipientId.trim().isEmpty()) continue;
+
+                    // 1. Generate a unique, random AES key for this message
+                    SecretKey uniqueKey = AESUtil.generateKey();
+                    
+                    // 2. Encrypt the message with the unique key
+                    String encryptedMessage = AESUtil.encrypt(message, uniqueKey);
+                    
+                    // 3. Encrypt the unique key with the Master Key
+                    String encryptedAesKey = MasterKeyUtil.encryptKey(uniqueKey);
+                    
+                    // 4. Execute the database insert for THIS specific recipient
+                    pstmt.setInt(1, Integer.parseInt(senderId));
+                    pstmt.setInt(2, Integer.parseInt(recipientId.trim()));
+                    pstmt.setString(3, encryptedMessage);
+                    pstmt.setString(4, encryptedAesKey);
+                    
+                    totalMessagesSent += pstmt.executeUpdate();
+                }
             }
 
             if (totalMessagesSent > 0) {
@@ -80,7 +81,7 @@ public class SendMessageServlet extends HttpServlet {
 
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect("compose.jsp?error=Server error: " + e.getMessage());
+            response.sendRedirect("compose.jsp?error=Server error sending message.");
         }
     }
 }

@@ -1,4 +1,12 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page session="true" %>
+<%
+    String currentRole = (String) session.getAttribute("role");
+    if (currentRole == null || !currentRole.equalsIgnoreCase("Admin")) {
+        response.sendRedirect("login.jsp?error=Unauthorized access");
+        return;
+    }
+%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -41,9 +49,11 @@
                 <input type="email" name="email" placeholder="Email" required>
                 <select name="role" required>
                     <option value="">-- Select Role --</option>
+                    <option value="Intelligence">Intelligence</option>
                     <option value="TopOrder">Top Order</option>
                     <option value="Secondary">Secondary</option>
                     <option value="Soldier">Soldier</option>
+                    <option value="Admin">Admin</option>
                 </select>
             </div>
 

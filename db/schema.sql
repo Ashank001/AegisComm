@@ -77,38 +77,6 @@ CREATE TABLE IF NOT EXISTS `password_reset` (
   KEY `idx_reset_token` (`token`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- -----------------------------------------------------------
--- Table: weapons
--- Inventory of weapons assigned to soldiers.
--- Referenced by: ViewWeaponsServlet, AddWeaponServlet,
---                EditWeaponServlet, DeleteWeaponServlet
--- -----------------------------------------------------------
-CREATE TABLE IF NOT EXISTS `weapons` (
-  `id`            INT          NOT NULL AUTO_INCREMENT,
-  `serial_number` VARCHAR(100) NOT NULL,
-  `weapon_name`   VARCHAR(150) NOT NULL,
-  `model_number`  VARCHAR(100) DEFAULT NULL,
-  `status`        VARCHAR(50)  NOT NULL DEFAULT 'Available',
-  `assigned_to`   INT          DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_weapons_serial` (`serial_number`),
-  CONSTRAINT `fk_weapons_user` FOREIGN KEY (`assigned_to`) REFERENCES `users` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- -----------------------------------------------------------
--- Table: borders
--- Border surveillance zones with threat levels.
--- Referenced by: ViewBordersServlet, EditBorderServlet,
---                DeleteBorderServlet, UpdateBorderServlet
--- -----------------------------------------------------------
-CREATE TABLE IF NOT EXISTS `borders` (
-  `id`            INT          NOT NULL AUTO_INCREMENT,
-  `location_name` VARCHAR(200) NOT NULL,
-  `coordinates`   VARCHAR(200) DEFAULT NULL,
-  `threat_level`  VARCHAR(50)  NOT NULL DEFAULT 'Low',
-  `last_updated`  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- -----------------------------------------------------------
 -- Seed: Default admin account

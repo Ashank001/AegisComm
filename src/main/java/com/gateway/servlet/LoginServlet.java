@@ -71,12 +71,9 @@ public class LoginServlet extends HttpServlet {
                 AuditLogger.log(email, "Login failed: Email not found in database.");
                 response.sendRedirect("login.jsp?error=" + msg);
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            response.getWriter().println("<h3>Database Error: " + e.getMessage() + "</h3>");
         } catch (Exception e) {
             e.printStackTrace();
-            response.getWriter().println("<h3>Unexpected Error: " + e.getMessage() + "</h3>");
+            response.sendRedirect("login.jsp?error=System+error+occurred.+Please+try+again.");
         }
     }
 

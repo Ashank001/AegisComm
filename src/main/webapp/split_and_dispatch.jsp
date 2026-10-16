@@ -6,7 +6,7 @@
     
     // Check 1: Prevent NullPointerException if session/role is missing
     if (role == null || !role.equalsIgnoreCase("Secondary")) {
-        response.sendRedirect("dashboard.jsp?error=Unauthorized access");
+        response.sendRedirect("login.jsp?error=Unauthorized access");
         return;
     }
 

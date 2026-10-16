@@ -60,7 +60,7 @@ public class ResetPasswordServlet extends HttpServlet {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            response.getWriter().println("DB Error: " + e.getMessage());
+            response.sendRedirect("reset.jsp?msg=An error occurred while resetting password.");
         }
     }
 }

@@ -17,6 +17,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.UUID;
 import com.gateway.util.DBConnection;
+import com.gateway.util.AuditLogger;
 
 @WebServlet("/UpdateUserServlet")
 @MultipartConfig(
@@ -35,12 +36,20 @@ public class UpdateUserServlet extends HttpServlet {
             response.sendRedirect("login.jsp?error=Unauthorized access");
             return;
         }
+        String adminEmail = (String) session.getAttribute("userEmail");
 
         String userIdStr = request.getParameter("id");
         String name = request.getParameter("name");
         String email = request.getParameter("email");
         String role = request.getParameter("role");
         String existingProfileImg = request.getParameter("existingProfileImg"); // Used to handle no new upload
+
+        if (role == null || (!role.equalsIgnoreCase("Admin") && !role.equalsIgnoreCase("Intelligence") 
+                && !role.equalsIgnoreCase("TopOrder") && !role.equalsIgnoreCase("Secondary") 
+                && !role.equalsIgnoreCase("Soldier"))) {
+            response.sendRedirect("view_users.jsp?error=Invalid role specified.");
+            return;
+        }
 
         String profileImgFileName = existingProfileImg;
 
@@ -78,6 +87,7 @@ public class UpdateUserServlet extends HttpServlet {
                 int rowsAffected = insertStmt.executeUpdate();
 
                 if (rowsAffected > 0) {
+                    AuditLogger.log(adminEmail, "UPDATED USER: " + email + " (Role: " + role + ")");
                     response.sendRedirect("view_users.jsp?success=User updated successfully.");
                 } else {
                     response.sendRedirect("view_users.jsp?error=Something went wrong. User not updated.");
@@ -86,7 +96,7 @@ public class UpdateUserServlet extends HttpServlet {
 
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect("view_users.jsp?error=Server Error: " + e.getMessage());
+            response.sendRedirect("view_users.jsp?error=Server error updating user.");
         }
     }
 }

@@ -22,10 +22,7 @@ public class AuditLogServlet extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
-        String role = (String) session.getAttribute("role");
-
-        // Security check: Only Admin can view audit logs
-        if (session == null || !"Admin".equalsIgnoreCase(role)) {
+        if (session == null || !"Admin".equalsIgnoreCase((String) session.getAttribute("role"))) {
             response.sendRedirect("login.jsp?error=Unauthorized access");
             return;
         }

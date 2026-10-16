@@ -37,8 +37,6 @@
     <a class="button" href="compose.jsp">✉️ Compose</a>
     <a class="button" href="InboxServlet">📥 View Inbox</a>
     <a class="button" href="view_users.jsp">👥 View All Users</a>
-   	<a class="button" href="ViewWeaponsServlet">🔫 Manage Weapons</a>
-   	<a class="button" href="ViewBordersServlet">🌍 Manage Zones</a>
     <a class="button" href="AuditLogServlet">📜 View Activity Logs</a>
     <a class="button" href="change_password.jsp">🔒 Change Password</a>
     <a class="button logout" href="LogoutServlet">Logout</a>

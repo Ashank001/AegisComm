@@ -16,8 +16,10 @@ public class LogoutServlet extends HttpServlet {
 
         HttpSession session = request.getSession(false);
         if (session != null) {
-            String username = (String) session.getAttribute("user");
-            AuditLogger.log(username, "Logged out");
+            String userEmail = (String) session.getAttribute("userEmail");
+            if (userEmail != null) {
+                AuditLogger.log(userEmail, "Logged out");
+            }
             session.invalidate();
         }
 

@@ -24,19 +24,15 @@ public class ProcessSplitForwardServlet extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
-        String senderId = (String) session.getAttribute("userId");
-        String role = (String) session.getAttribute("role");
-
-        // Security Check: Only Secondary can access this
-        if (session == null || !role.equalsIgnoreCase("Secondary")) {
+        if (session == null || !"Secondary".equalsIgnoreCase((String) session.getAttribute("role"))) {
             response.sendRedirect("login.jsp?error=Unauthorized access");
             return;
         }
 
+        String senderId = (String) session.getAttribute("userId");
         String originalMessageId = request.getParameter("originalMessageId"); 
         
-        // CRITICAL FIX: Use getParameterValues for all array inputs
-        // This receives an array where orders[i] corresponds to the recipient list recipientsArrays[i]
+        // Use getParameterValues for array inputs
         String[] orders = request.getParameterValues("orders[]");
         String[] recipientArrays = request.getParameterValues("recipients[]");
         
@@ -53,38 +49,32 @@ public class ProcessSplitForwardServlet extends HttpServlet {
         int totalMessagesSent = 0;
 
         try (Connection conn = DBConnection.getConnection()) {
-            
             String sql = "INSERT INTO messages (sender_id, receiver_id, encrypted_text, encrypted_aes_key) VALUES (?, ?, ?, ?)";
-            
-            for (int i = 0; i < orders.length; i++) {
-                String orderText = orders[i];
-                String recipientString = recipientArrays[i]; 
-                
-                // Recipients are sent as a single string of comma-separated IDs if multiple are selected
-                String[] individualRecipientIds = recipientString.split(","); 
-                
-                for (String soldierId : individualRecipientIds) {
-                    if (soldierId == null || soldierId.trim().isEmpty()) continue;
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                for (int i = 0; i < orders.length; i++) {
+                    String orderText = orders[i];
+                    String recipientString = recipientArrays[i]; 
+                    
+                    if (recipientString == null) continue;
+                    String[] individualRecipientIds = recipientString.split(","); 
+                    
+                    for (String soldierId : individualRecipientIds) {
+                        if (soldierId == null || soldierId.trim().isEmpty()) continue;
 
-                    // --- CRITICAL FIX ---
-                    // 1. Clean the ID string: Remove ALL non-digit characters (quotes, backslashes, etc.)
-                    String cleanSoldierId = soldierId.trim().replaceAll("[^0-9]", "");
-                    
-                    if (cleanSoldierId.isEmpty()) continue; // Skip if cleaning resulted in an empty string
-                    
-                    // 2. Generate and encrypt message components
-                    SecretKey uniqueKey = AESUtil.generateKey();
-                    String encryptedMessage = AESUtil.encrypt(orderText, uniqueKey);
-                    String encryptedAesKey = MasterKeyUtil.encryptKey(uniqueKey);
-                    
-                    // 3. Execute the database insert
-                    PreparedStatement pstmt = conn.prepareStatement(sql);
-                    pstmt.setInt(1, Integer.parseInt(senderId));
-                    pstmt.setInt(2, Integer.parseInt(cleanSoldierId)); // Use the now clean and safe ID
-                    pstmt.setString(3, encryptedMessage);
-                    pstmt.setString(4, encryptedAesKey);
-                    
-                    totalMessagesSent += pstmt.executeUpdate();
+                        String cleanSoldierId = soldierId.trim().replaceAll("[^0-9]", "");
+                        if (cleanSoldierId.isEmpty()) continue;
+                        
+                        SecretKey uniqueKey = AESUtil.generateKey();
+                        String encryptedMessage = AESUtil.encrypt(orderText, uniqueKey);
+                        String encryptedAesKey = MasterKeyUtil.encryptKey(uniqueKey);
+                        
+                        pstmt.setInt(1, Integer.parseInt(senderId));
+                        pstmt.setInt(2, Integer.parseInt(cleanSoldierId));
+                        pstmt.setString(3, encryptedMessage);
+                        pstmt.setString(4, encryptedAesKey);
+                        
+                        totalMessagesSent += pstmt.executeUpdate();
+                    }
                 }
             }
 

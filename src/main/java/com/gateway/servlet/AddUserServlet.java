@@ -37,8 +37,12 @@ public class AddUserServlet extends HttpServlet {
         String redirectUrl = "AddUser.jsp";
         Connection conn = null;
         
-        // Get the current user's session (the Admin performing the action)
+        // Security check: ensure only authenticated Admin can add users
         HttpSession session = request.getSession(false);
+        if (session == null || !"Admin".equalsIgnoreCase((String) session.getAttribute("role"))) {
+            response.sendRedirect("login.jsp?error=Unauthorized access");
+            return;
+        }
         String adminEmail = (String) session.getAttribute("userEmail"); 
 
         try {
@@ -46,6 +50,14 @@ public class AddUserServlet extends HttpServlet {
             String name = request.getParameter("name");
             String email = request.getParameter("email");
             String role = request.getParameter("role");
+
+            if (role == null || (!role.equalsIgnoreCase("Admin") && !role.equalsIgnoreCase("Intelligence") 
+                    && !role.equalsIgnoreCase("TopOrder") && !role.equalsIgnoreCase("Secondary") 
+                    && !role.equalsIgnoreCase("Soldier"))) {
+                response.sendRedirect("AddUser.jsp?error=Invalid role specified.");
+                return;
+            }
+
             boolean generatePassword = request.getParameter("sendMail") != null;
 
             String password = generatePassword ? generateRandomPassword(10) : "123";
@@ -119,7 +131,7 @@ public class AddUserServlet extends HttpServlet {
 
         } catch (Exception e) {
             e.printStackTrace();
-            redirectUrl += "?error=Server Error: " + e.getMessage();
+            redirectUrl += "?error=Server Error. Please try again.";
         } finally {
             try {
                 if (conn != null) {

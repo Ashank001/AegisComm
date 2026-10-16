@@ -1,5 +1,13 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="com.gateway.model.User" %>
+<%@ page session="true" %>
+<%
+    String currentRole = (String) session.getAttribute("role");
+    if (currentRole == null || !currentRole.equalsIgnoreCase("Admin")) {
+        response.sendRedirect("login.jsp?error=Unauthorized access");
+        return;
+    }
+%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -33,10 +41,11 @@
             <div class="input-row">
                 <input type="email" name="email" value="<%= user.getEmail() %>" required>
                 <select name="role" required>
-                    <option value="TopOrder" <%= "TopOrder".equals(user.getRole()) ? "selected" : "" %>>Top Order</option>
-                    <option value="Secondary" <%= "Secondary".equals(user.getRole()) ? "selected" : "" %>>Secondary</option>
-                    <option value="Soldier" <%= "Soldier".equals(user.getRole()) ? "selected" : "" %>>Soldier</option>
-                    <option value="Admin" <%= "Admin".equals(user.getRole()) ? "selected" : "" %>>Admin</option>
+                    <option value="Intelligence" <%= "Intelligence".equalsIgnoreCase(user.getRole()) ? "selected" : "" %>>Intelligence</option>
+                    <option value="TopOrder" <%= "TopOrder".equalsIgnoreCase(user.getRole()) ? "selected" : "" %>>Top Order</option>
+                    <option value="Secondary" <%= "Secondary".equalsIgnoreCase(user.getRole()) ? "selected" : "" %>>Secondary</option>
+                    <option value="Soldier" <%= "Soldier".equalsIgnoreCase(user.getRole()) ? "selected" : "" %>>Soldier</option>
+                    <option value="Admin" <%= "Admin".equalsIgnoreCase(user.getRole()) ? "selected" : "" %>>Admin</option>
                 </select>
             </div>
             

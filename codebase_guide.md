@@ -79,22 +79,20 @@ This guide explains the foundational Java web architecture (MVC Pattern) used in
 ### Package: `com.gateway.model` (Entities / Data Models)
 | File | Role & Purpose |
 | :--- | :--- |
-| **`User.java`** | Models a system user (`id`, `name`, `email`, `password`, `role`). Used for authentication, session tracking, and user management. |
+| **`User.java`** | Models a system user (`id`, `name`, `email`, `password`, `role`, `profileImg`). Used for authentication, session tracking, and user management. |
 | **`Message.java`** | Models a communication record (`id`, `senderId`, `receiverId`, `encryptedText`, `encryptedAesKey`, `decryptedText`, `timestamp`). |
-| **`Weapon.java`** | Models military inventory equipment (`id`, `weaponName`, `weaponType`, `quantity`, `assignedBase`, `status`). |
-| **`Border.java`** | Models border surveillance and defense checkpoints (`id`, `locationName`, `coordinates`, `threatLevel`, `lastUpdated`). |
-| **`AuditLog.java`** | Models an immutable audit ledger entry (`id`, `userId`, `action`, `details`, `timestamp`, `previousHash`, `currentHash`). |
+| **`AuditLog.java`** | Models an immutable audit ledger entry (`id`, `userEmail`, `action`, `hashPrevious`, `hashCurrent`, `timestamp`). |
 
 ---
 
 ### Package: `com.gateway.util` (Helpers & Cross-Cutting Services)
 | File | Role & Purpose |
 | :--- | :--- |
-| **`DBConnection.java`** | Database connection manager. Reads `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` from environment variables and yields a JDBC `java.sql.Connection`. |
+| **`DBConnection.java`** | Database connection manager. Reads `DB_URL`, `DB_USER`, `DB_PASS` from environment variables and yields a JDBC `java.sql.Connection`. |
 | **`AESUtil.java`** | Symmetric encryption utility. Generates fresh 128-bit AES keys and performs AES encryption and decryption on message text. |
 | **`MasterKeyUtil.java`** | Envelope encryption / key wrapping utility. Encrypts and decrypts each message's unique AES key using the server-level `MASTER_KEY`. |
 | **`SHA256Util.java`** | Hashing engine. Computes cryptographic SHA-256 digests used for tamper-evident blockchain-style hash chains. |
-| **`AuditLogger.java`** | Secure ledger engine. Queries the previous audit row's `current_hash`, hashes it together with the new event payload, and writes the chained hash into `audit_logs`. |
+| **`AuditLogger.java`** | Secure ledger engine. Queries the previous audit row's `hash_current`, hashes it together with the new event payload, and writes the chained hash into `audit_logs`. |
 | **`MailSender.java`** | SMTP email relay. Connects via Jakarta Mail over TLS (port 587) to Google SMTP to dispatch onboarding credentials and password reset links. |
 | **`AppLogger.java`** | Centralized application logger wrapping `java.util.logging.Logger` for consistent log output. |
 
@@ -105,72 +103,57 @@ This guide explains the foundational Java web architecture (MVC Pattern) used in
 #### Authentication & Profile Lifecycle:
 | File | URL / Method | Description |
 | :--- | :--- | :--- |
-| **`LoginServlet.java`** | `POST /login` | Validates credentials against BCrypt hashes in MySQL, creates `HttpSession`, stores user role/email, and routes to role-specific dashboards. |
-| **`LogoutServlet.java`** | `GET /logout` | Invalidates active user session and redirects to `login.jsp`. |
-| **`ChangePasswordServlet.java`** | `POST /change-password` | Allows an authenticated user to update their existing password. Validates old password hash and commits new BCrypt hash. |
-| **`ForgotPasswordServlet.java`** | `POST /forgot-password` | Generates a secure time-limited reset token and dispatches a password recovery email via `MailSender`. |
-| **`ResetPasswordServlet.java`** | `POST /reset-password` | Validates the recovery token from the email link and resets the user's password. |
+| **`LoginServlet.java`** | `POST /LoginServlet` | Validates credentials against BCrypt hashes in MySQL, creates `HttpSession`, stores user role/email, and routes to role-specific dashboards. |
+| **`LogoutServlet.java`** | `POST /LogoutServlet` | Invalidates active user session, logs audit trail, and redirects to `login.jsp`. |
+| **`ChangePasswordServlet.java`** | `POST /ChangePasswordServlet` | Allows an authenticated user to update their existing password. Validates current password hash and commits new BCrypt hash. |
+| **`ForgotPasswordServlet.java`** | `POST /ForgotPasswordServlet` | Generates a secure time-limited reset token and dispatches a password recovery email via `MailSender`. |
+| **`ResetPasswordServlet.java`** | `POST /ResetPasswordServlet` | Validates the recovery token from the email link and resets the user's password. |
 
 #### Secure Messaging & Envelope Encryption Flow:
 | File | URL / Method | Description |
 | :--- | :--- | :--- |
-| **`SendMessageServlet.java`** | `POST /send-message` | Handles message dispatch. Generates a fresh AES key for each recipient, encrypts the text, wraps the key via MasterKeyUtil, inserts rows into DB, and logs audit events. |
-| **`InboxServlet.java`** | `GET /inbox` | Fetches incoming messages for the logged-in user, unwraps keys using `MASTER_KEY`, decrypts message payloads, and forwards to `inbox.jsp`. |
-| **`DeleteMessageServlet.java`** | `POST /delete-message` | Removes a message from the recipient's view. |
-| **`ForwardMessageServlet.java`** | `GET /forward-message` | Loads a received message into memory to prepare it for supervisor forward or modification. |
-| **`ProcessForwardServlet.java`** | `POST /process-forward` | Allows commanders to forward decrypted/modified messages to subordinate personnel under re-encryption. |
-| **`SplitForwardServlet.java`** | `GET /split-forward` | Prepares a message for hierarchical split dispatch across multiple distinct units. |
-| **`ProcessSplitForwardServlet.java`** | `POST /process-split` | Splits sensitive intelligence into distinct compartmentalized message segments and dispatches each fragment to different authorized personnel. |
+| **`SendMessageServlet.java`** | `POST /SendMessageServlet` | Handles message dispatch. Generates a fresh AES key for each recipient, encrypts the text, wraps the key via MasterKeyUtil, inserts rows into DB, and logs audit events. |
+| **`InboxServlet.java`** | `GET /InboxServlet` | Fetches incoming messages for the logged-in user, unwraps keys using `MASTER_KEY`, decrypts message payloads, and forwards to `inbox.jsp`. |
+| **`DeleteMessageServlet.java`** | `POST /DeleteMessageServlet` | Removes a message from the recipient's inbox with recipient ownership checks. |
+| **`ForwardMessageServlet.java`** | `GET /ForwardMessageServlet` | Loads an authorized received message into memory to prepare it for TopOrder forward or modification. |
+| **`ProcessForwardServlet.java`** | `POST /ProcessForwardServlet` | Allows TopOrder commanders to forward edited messages to Secondary officers under re-encryption. |
+| **`SplitForwardServlet.java`** | `GET /SplitForwardServlet` | Prepares an authorized message for hierarchical split dispatch by Secondary officers. |
+| **`ProcessSplitForwardServlet.java`** | `POST /ProcessSplitForwardServlet` | Splits messages into distinct orders and dispatches each fragment to selected Soldiers with unique AES encryption. |
 
 #### Administration & User Management (Admin Only):
 | File | URL / Method | Description |
 | :--- | :--- | :--- |
-| **`AddUserServlet.java`** | `POST /add-user` | Enforces closed-enrollment RBAC. Admin provisions a new soldier/officer, hashes a temporary password, stores the record, and automatically triggers `MailSender` to notify the user. |
-| **`EditUserServlet.java`** | `GET /edit-user` | Fetches an existing user record for the admin edit form. |
-| **`UpdateUserServlet.java`** | `POST /update-user` | Updates user metadata (name, email, role, or military rank). |
-| **`DeleteUserServlet.java`** | `POST /delete-user` | Deactivates or removes a military personnel account. |
-
-#### Military Assets & Defense Readiness:
-| File | URL / Method | Description |
-| :--- | :--- | :--- |
-| **`ViewWeaponsServlet.java`** | `GET /view-weapons` | Queries the weapons inventory and forwards the dataset to `ViewWeapons.jsp`. |
-| **`AddWeaponServlet.java`** | `POST /add-weapon` | Registers new weapons, ammunition, or tactical equipment into the base armory. |
-| **`EditWeaponServlet.java`** | `GET /edit-weapon` | Loads weapon record details for modification. |
-| **`UpdateWeaponServlet.java`** | `POST /update-weapon` | Updates equipment stock levels, deployment base, or maintenance readiness. |
-| **`DeleteWeaponServlet.java`** | `POST /delete-weapon` | Decommissions or writes off an armory asset. |
-| **`ViewBordersServlet.java`** | `GET /view-borders` | Retrieves border monitoring checkpoints and threat statuses for `ViewBorders.jsp`. |
-| **`EditBorderServlet.java`** | `GET /edit-border` | Loads checkpoint coordinates and threat conditions for editing. |
-| **`UpdateBorderServlet.java`** | `POST /update-border` | Updates border threat levels (Low/Medium/High/Critical). |
-| **`DeleteBorderServlet.java`** | `POST /delete-border` | Decommissions an inactive border post. |
+| **`AddUserServlet.java`** | `POST /AddUserServlet` | Enforces closed-enrollment RBAC. Admin provisions new personnel, hashes password, stores the record, and optionally dispatches onboarding credentials. |
+| **`EditUserServlet.java`** | `GET /EditUserServlet` | Fetches an existing user record for the admin edit form with server-side Admin role validation. |
+| **`UpdateUserServlet.java`** | `POST /UpdateUserServlet` | Updates user metadata (name, email, role, profile image) with Admin validation and audit logging. |
+| **`DeleteUserServlet.java`** | `POST /DeleteUserServlet` | Deletes a personnel account with Admin validation, self-deletion prevention, and audit logging. |
 
 #### Security & Compliance:
 | File | URL / Method | Description |
 | :--- | :--- | :--- |
-| **`AuditLogServlet.java`** | `GET /audit-logs` | Queries the immutable `audit_logs` table, verifies hash chain continuity, and passes records to `audit.jsp`. |
-| **`ImageServlet.java`** | `GET /image` | Serves secure uploaded tactical attachments or badge graphics with content-type verification. |
+| **`AuditLogServlet.java`** | `GET /AuditLogServlet` | Queries the hash-linked `audit_logs` table, verifies chain continuity, and passes records to `audit.jsp` (Admin only). |
+| **`ImageServlet.java`** | `GET /ImageServlet` | Serves profile images with path-traversal safeguards and content-type headers. |
 
 ---
 
 ### Web Tier: `src/main/webapp/` (JSP Views & Frontend)
 
 #### Role-Based Dashboards:
-* **`dashboard.jsp`**: Central administrator dashboard (user provisioning, system health, audit logs).
-* **`dashboard_top.jsp`**: Top Commander dashboard (strategic oversight, weapons inventory, global messaging).
-* **`dashboard_second.jsp`**: Field Commander / Secondary Officer dashboard (squad dispatches, tactical forwarding).
-* **`dashboard_soldier.jsp`**: Frontline Soldier dashboard (direct upward reporting, orders inbox).
-* **`dashboard_intel.jsp`**: Intelligence Officer dashboard (threat analysis, border posts, split messaging).
+* **`dashboard.jsp`**: Central administrator dashboard (user provisioning, user management, audit logs).
+* **`dashboard_intel.jsp`**: Intelligence Officer dashboard (originating intelligence messages, inbox).
+* **`dashboard_top.jsp`**: Top Commander dashboard (reviewing, editing, and forwarding messages to Secondary officers).
+* **`dashboard_second.jsp`**: Secondary Officer dashboard (splitting and dispatching orders to Soldiers).
+* **`dashboard_soldier.jsp`**: Frontline Soldier dashboard (viewing orders, upward reporting).
 
 #### Views & Interactive Interfaces:
 * **`login.jsp`**: Secure login portal with role validation.
-* **`compose.jsp`**: Multi-recipient secure message composition form with dynamic recipient filtering.
-* **`inbox.jsp`**: Secure inbox presenting decrypted intelligence dispatches.
+* **`compose.jsp`**: Multi-recipient secure message composition form with hierarchical recipient filtering.
+* **`inbox.jsp`**: Secure inbox presenting decrypted dispatches.
 * **`modify_msg.jsp` / `split_and_dispatch.jsp`**: Tactical message modification and intelligence compartmentalization interfaces.
 * **`AddUser.jsp` / `EditUser.jsp` / `view_users.jsp`**: Admin personnel management views.
-* **`AddWeapon.jsp` / `EditWeapon.jsp` / `ViewWeapons.jsp`**: Armory logistics inventory management.
-* **`ViewBorders.jsp`**: Border checkpoint surveillance and threat telemetry.
-* **`audit.jsp`**: Tamper-evident audit log ledger viewer.
+* **`audit.jsp`**: Tamper-evident hash-linked audit log viewer.
 * **`change_password.jsp` / `forgot.jsp` / `reset.jsp`**: Self-service credential management views.
-* **`WEB-INF/web.xml`**: Deployment descriptor mapping servlet routes, error pages, and session timeout thresholds.
+* **`WEB-INF/web.xml`**: Deployment descriptor mapping welcome files.
 
 ---
 

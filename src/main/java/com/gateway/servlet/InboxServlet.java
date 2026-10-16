@@ -28,12 +28,11 @@ public class InboxServlet extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
-        String userIdStr = (String) session.getAttribute("userId");
-
-        if (userIdStr == null) {
+        if (session == null || session.getAttribute("userId") == null) {
             response.sendRedirect("login.jsp?error=Unauthorized access");
             return;
         }
+        String userIdStr = (String) session.getAttribute("userId");
 
         List<Message> messages = new ArrayList<>();
 

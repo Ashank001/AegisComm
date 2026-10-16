@@ -19,16 +19,24 @@ public class ImageServlet extends HttpServlet {
             throws ServletException, IOException {
 
         String fileName = request.getParameter("name");
-        if (fileName == null || fileName.isEmpty()) {
+        if (fileName == null || fileName.trim().isEmpty() || fileName.contains("..") || fileName.contains("/") || fileName.contains("\\")) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
 
         String uploadPath = getServletContext().getRealPath(IMAGE_DIR);
+        if (uploadPath == null) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+
         File imageFile = new File(uploadPath, fileName);
+        if (!imageFile.getCanonicalPath().startsWith(new File(uploadPath).getCanonicalPath())) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            return;
+        }
 
         if (!imageFile.exists() || !imageFile.canRead()) {
-            System.err.println("File not found or not readable: " + imageFile.getAbsolutePath());
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;
         }

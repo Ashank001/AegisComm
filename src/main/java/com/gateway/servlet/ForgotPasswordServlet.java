@@ -54,7 +54,7 @@ public class ForgotPasswordServlet extends HttpServlet {
             response.sendRedirect("forgot.jsp?msg=Reset link sent to your email.");
         } catch (Exception e) {
             e.printStackTrace();
-            response.getWriter().println("Error: " + e.getMessage());
+            response.sendRedirect("forgot.jsp?msg=An error occurred while processing reset request.");
         }
     }
 }

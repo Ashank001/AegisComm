@@ -1,6 +1,7 @@
 package com.gateway.servlet;
 
 import com.gateway.util.DBConnection;
+import com.gateway.util.AuditLogger;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -25,9 +26,16 @@ public class DeleteUserServlet extends HttpServlet {
             return;
         }
 
+        String adminEmail = (String) session.getAttribute("userEmail");
+        String currentAdminId = (String) session.getAttribute("userId");
         String userIdStr = request.getParameter("userId");
         if (userIdStr == null || userIdStr.isEmpty()) {
             response.sendRedirect("view_users.jsp?error=User ID not provided.");
+            return;
+        }
+
+        if (userIdStr.equals(currentAdminId)) {
+            response.sendRedirect("view_users.jsp?error=Cannot delete your own admin account.");
             return;
         }
 
@@ -39,15 +47,14 @@ public class DeleteUserServlet extends HttpServlet {
             int rowsAffected = pstmt.executeUpdate();
 
             if (rowsAffected > 0) {
-                // Redirect back with a success message
+                AuditLogger.log(adminEmail, "DELETED USER: ID " + userIdStr);
                 response.sendRedirect("view_users.jsp?success=User deleted successfully.");
             } else {
-                // Redirect back with an error if the user was not found
                 response.sendRedirect("view_users.jsp?error=User not found.");
             }
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect("view_users.jsp?error=Server Error: " + e.getMessage());
+            response.sendRedirect("view_users.jsp?error=Server error deleting user.");
         }
     }
 }

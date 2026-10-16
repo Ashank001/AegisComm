@@ -19,23 +19,25 @@ public class ForwardMessageServlet extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
-        String role = (String) session.getAttribute("role");
-        String messageIdStr = request.getParameter("id");
-
-        if (session == null || !role.equalsIgnoreCase("TopOrder")) {
-            response.sendRedirect("dashboard_top.jsp?error=Unauthorized to edit messages.");
+        if (session == null || !"TopOrder".equalsIgnoreCase((String) session.getAttribute("role"))) {
+            response.sendRedirect("login.jsp?error=Unauthorized access");
             return;
         }
 
-        if (messageIdStr == null || messageIdStr.isEmpty()) {
+        String userIdStr = (String) session.getAttribute("userId");
+        String messageIdStr = request.getParameter("id");
+
+        if (messageIdStr == null || messageIdStr.trim().isEmpty()) {
             response.sendRedirect("InboxServlet?error=Message ID not provided.");
             return;
         }
 
         try (Connection conn = DBConnection.getConnection()) {
-            String query = "SELECT encrypted_text, encrypted_aes_key FROM messages WHERE id = ?";
+            // Verify message exists AND is addressed to this user
+            String query = "SELECT encrypted_text, encrypted_aes_key FROM messages WHERE id = ? AND receiver_id = ?";
             PreparedStatement pstmt = conn.prepareStatement(query);
-            pstmt.setInt(1, Integer.parseInt(messageIdStr));
+            pstmt.setInt(1, Integer.parseInt(messageIdStr.trim()));
+            pstmt.setInt(2, Integer.parseInt(userIdStr));
             ResultSet rs = pstmt.executeQuery();
 
             if (rs.next()) {
