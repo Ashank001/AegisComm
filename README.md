@@ -213,7 +213,7 @@ cp .env.example .env
 docker compose up --build -d
 
 # 4. Access the web interface
-# Open http://localhost:8080 in your browser
+# Open http://localhost (port 80) in your browser
 ```
 
 ### Option B: Local Compilation with javac
@@ -236,12 +236,85 @@ Remove-Item -Force sources.txt
 # 4. Copy to Tomcat webapps or assemble WAR
 ```
 
+### Option C: Running Automated Integration Tests
+```bash
+# Run against local server (default: http://localhost:8080 or pass AEGIS_TEST_URL)
+python test_suite.py
+
+# Or targeting Docker on port 80:
+AEGIS_TEST_URL="http://localhost" python test_suite.py
+```
+
 ---
 
-## 14. Current Security Limitations & Known Issues
+## 14. Project Directory Structure
+
+```
+src/main/
+├── java/
+│   ├── com/gateway/
+│   │   ├── model/                  # POJO entities
+│   │   │   ├── User.java           # Account model (credentials, roles, profile images)
+│   │   │   ├── Message.java        # Message model (ciphertext, wrapped key, decrypted body)
+│   │   │   └── AuditLog.java       # Audit ledger model (chained hash digests)
+│   │   ├── servlet/                # HTTP Controllers (18 focused servlets)
+│   │   │   ├── LoginServlet.java
+│   │   │   ├── LogoutServlet.java
+│   │   │   ├── ChangePasswordServlet.java
+│   │   │   ├── ForgotPasswordServlet.java
+│   │   │   ├── ResetPasswordServlet.java
+│   │   │   ├── SendMessageServlet.java
+│   │   │   ├── InboxServlet.java
+│   │   │   ├── DeleteMessageServlet.java
+│   │   │   ├── ForwardMessageServlet.java
+│   │   │   ├── ProcessForwardServlet.java
+│   │   │   ├── SplitForwardServlet.java
+│   │   │   ├── ProcessSplitForwardServlet.java
+│   │   │   ├── AddUserServlet.java
+│   │   │   ├── EditUserServlet.java
+│   │   │   ├── UpdateUserServlet.java
+│   │   │   ├── DeleteUserServlet.java
+│   │   │   ├── AuditLogServlet.java
+│   │   │   └── ImageServlet.java
+│   │   └── util/                   # Reusable cross-cutting services
+│   │       ├── AESUtil.java        # 128-bit AES encryption & decryption
+│   │       ├── MasterKeyUtil.java  # Envelope encryption master key wrapping
+│   │       ├── SHA256Util.java     # SHA-256 cryptographic hashing
+│   │       ├── AuditLogger.java    # Hash-linked ledger recording engine
+│   │       ├── DBConnection.java   # Centralized JDBC connection pool provider
+│   │       ├── MailSender.java     # Jakarta Mail SMTP delivery
+│   │       └── AppLogger.java      # Application logging wrapper
+│   └── org/mindrot/jbcrypt/        # Native BCrypt password hashing library
+└── webapp/
+    ├── CSS/                        # Modular CSS stylesheets
+    ├── images/                     # System branding & uploaded profile images
+    ├── WEB-INF/                    # Deployment descriptor (web.xml)
+    ├── dashboard.jsp               # Admin dashboard
+    ├── dashboard_intel.jsp         # Intelligence officer dashboard
+    ├── dashboard_top.jsp           # Top Order commander dashboard
+    ├── dashboard_second.jsp        # Secondary commander dashboard
+    ├── dashboard_soldier.jsp       # Frontline soldier dashboard
+    ├── compose.jsp                 # Secure message composition form
+    ├── inbox.jsp                   # Decrypted message inbox
+    ├── modify_msg.jsp              # Top Order message edit/forward interface
+    ├── split_and_dispatch.jsp      # Secondary tactical split-dispatch interface
+    ├── AddUser.jsp                 # Admin user provisioning view
+    ├── EditUser.jsp                # Admin user editing view
+    ├── view_users.jsp              # Admin user list view
+    ├── audit.jsp                   # Tamper-evident audit chain inspector
+    ├── change_password.jsp         # In-session password update view
+    ├── forgot.jsp                  # Password recovery request view
+    ├── reset.jsp                   # Password token reset view
+    └── login.jsp                   # Authentication entry portal
+```
+
+---
+
+## 15. Current Security Limitations & Known Issues
 
 1. **Transport Layer Security (TLS)**: The application server itself does not enforce HTTPS. In production, AegisComm must be deployed behind a reverse proxy (e.g., NGINX, AWS ALB, Caddy) terminating TLS to protect session cookies and credentials in transit.
 2. **AES Transformation Mode**: `AESUtil` initializes cipher instances using `"AES"`, which defaults to ECB mode on default Java providers. While individual random keys mitigate ECB pattern leakage across messages, authenticated modes (such as AES-GCM) with explicit IVs would provide stronger cryptographic guarantees. Existing message compatibility was preserved.
 3. **Master Key Lifecycle**: The `MASTER_KEY` is loaded from a single environment variable into static memory. Key rotation, hardware security modules (HSM), or KMS integrations (such as AWS KMS or HashiCorp Vault) are not implemented.
 4. **Audit Chain Re-computation**: While the hash-linked audit chain detects modification or deletion of past records, an adversary with direct database write access could recalculate hashes forward from the point of modification. True immutability requires write-once-read-many (WORM) storage or remote append-only log streaming.
 5. **Session Management**: Session invalidation is handled in application memory; distributed sessions across multiple horizontal nodes require sticky sessions or an external session store.
+
