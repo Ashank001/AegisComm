@@ -18,7 +18,7 @@ class AegisCommIntegrationTest(unittest.TestCase):
         self.session = requests.Session()
         
         # Test accounts seeded in the schema
-        self.admin_email = "admin@aegiscomm.mil"
+        self.admin_email = "admin@gmail.com"
         self.admin_password = "admin123"
         
         # Random data for testing
